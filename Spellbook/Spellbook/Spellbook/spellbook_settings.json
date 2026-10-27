@@ -1,0 +1,29 @@
+{
+ "detection": {
+  "brighten": true,
+  "gap_bridge": 12,
+  "image_opacity": 1.0,
+  "load_dir": "C:\\Users\\mceRW\\Downloads\\CodeRe\\Spellbook\\Spellbook\\Spellbook\\InputImages",
+  "mask_level": 0.25,
+  "max_angle": 70.0,
+  "min_length": 30,
+  "save_dir": "C:\\Users\\mceRW\\Downloads\\CodeRe\\Spellbook\\Spellbook\\Spellbook\\EditedImages",
+  "sensitivity": 0.5,
+  "smooth_len": 6.0
+ },
+ "editor": {
+  "bin_dir": "C:/Users/mceRW/Downloads/CodeRe/USEFUL DATA/4wGasJetBinaries",
+  "link_angle": "40",
+  "link_tol": "10",
+  "plate_dir": "C:\\Users\\mceRW\\Downloads\\CodeRe\\Spellbook\\Spellbook\\Spellbook\\InputImages",
+  "polyline": false,
+  "sizes": {
+   "erase": 0.5,
+   "mask": 10.0,
+   "pen": 0.5
+  },
+  "snap": true
+ },
+ "grid": 1,
+ "version": "2.0.0"
+}

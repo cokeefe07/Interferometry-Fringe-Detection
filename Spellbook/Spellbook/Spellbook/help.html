@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SpellBook Manual</title>
+<style>
+html, body {
+  background-color: #2c3e50;
+  background: linear-gradient(140deg, #2c3e50, #4ca1af);
+  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  color: #333;
+  margin: 0;
+}
+#main {
+  max-width: 860px;
+  margin: 40px auto;
+  background-color: white;
+  padding: 36px 40px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+h1 { font-size: 2.3em; color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0; }
+h2 { color: #2980b9; margin-top: 32px; }
+h3 { color: #16a085; margin-top: 22px; }
+p, li { line-height: 1.6; }
+code, kbd {
+  background-color: #f3f5f7;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-family: Consolas, Menlo, monospace;
+  font-size: 0.92em;
+}
+kbd { border: 1px solid #ccd; }
+table { border-collapse: collapse; width: 100%; margin: 10px 0 18px 0; }
+th, td { border: 1px solid #e3e6ea; padding: 7px 9px; text-align: left; vertical-align: top; line-height: 1.5; }
+th { background: #f5f8fa; }
+.note { background: #f4f9fd; border-left: 4px solid #2980b9; padding: 10px 14px; border-radius: 4px; }
+</style>
+</head>
+<body>
+<div id="main">
+<h1>SpellBook Manual</h1>
+<p>Version 2.0.0. SpellBook traces the bright fringes of laser-plasma interferograms and lets you correct the trace by hand. The result is a binary PNG with one 1 px line per bright fringe, ready for fringe numbering and phase extraction.</p>
+
+<h2>Contents</h2>
+<ul>
+  <li><a href="#workflow">Typical workflow</a></li>
+  <li><a href="#grid">Working grid: 1x or 2x</a></li>
+  <li><a href="#detection">Detection tab</a></li>
+  <li><a href="#auto">How Auto-Optimize works</a></li>
+  <li><a href="#editor">Editor tab</a></li>
+  <li><a href="#controls">Mouse and keyboard</a></li>
+  <li><a href="#format">Binary format and folders</a></li>
+</ul>
+
+<h2 id="workflow">Typical workflow</h2>
+<ol>
+  <li><b>Detection tab:</b> click <b>Load Image</b> and pick a shot (TIFF, PNG, JPEG or BMP, any bit depth). The whole image is traced right away; fringes are drawn as red lines.</li>
+  <li>Click <b>Auto-Optimize</b>. It sets the sliders to the best settings for this shot. Fine tune afterwards if you like.</li>
+  <li>Click <b>Send to Editor</b>. The trace is saved to <code>EditedImages/</code> and opens in the Editor with the shot underneath.</li>
+  <li><b>Editor tab:</b> fix the trace, mask out areas without fringes with the Mask Pen, then <b>Save &gt; Shot Binary</b>.</li>
+</ol>
+
+<h2 id="grid">Working grid: 1x or 2x</h2>
+<p>The switch at the top right sets the grid for both tabs. <b>1x</b> traces on the image's own pixels. <b>2x</b> traces on a grid twice as fine: fringes come out more accurate because a line can sit between two image pixels, and tracing reaches further into regions where fringes are less than a pixel apart at 1x, such as near the target. A 2048 x 2048 shot gives a 4096 x 4096 binary at 2x.</p>
+<p>Every length and position SpellBook shows or asks for is in pixels of the image (camera pixels), on both grids: the Detection sliders, the cursor readout, the Ruler, Mirror at x, Link Endpoints' Max gap and the nudge offset. So a number means the same thing at 1x and 2x. At 2x the cursor readout also gives the position on the binary. Only the brush sizes are in pixels of the binary, so size 0.5 always draws a 1 px line.</p>
+
+<h2 id="detection">Detection tab</h2>
+<table>
+<tr><th>Control</th><th>What it does</th></tr>
+<tr><td>Load Image</td><td>Opens a shot and traces it. The view resets to show the whole image.</td></tr>
+<tr><td>Save Fringes as Binary</td><td>Saves the current trace as a PNG wherever you choose.</td></tr>
+<tr><td>Send to Editor</td><td>Saves the trace to <code>EditedImages/</code> (named after the shot, never overwriting an older file) and opens it in the Editor with the shot image underneath, already aligned.</td></tr>
+<tr><td>Auto-Optimize</td><td>Finds the best detection settings for this shot. While it runs the button reads Cancel Auto-Optimize, the status line counts down and the sliders are locked.</td></tr>
+<tr><td>Brighten Image</td><td>Stretches the display contrast so a few hot pixels cannot make the image dark. Display only.</td></tr>
+<tr><td>Image Opacity</td><td>Fades the image toward white so the red lines stand out. Display only.</td></tr>
+</table>
+<h3>Detection settings</h3>
+<p>Click a slider's number to type a value.</p>
+<table>
+<tr><th>Slider</th><th>What it does</th></tr>
+<tr><td>Sensitivity</td><td>How faint a fringe can be and still be traced. Raise it to pick up more fringes near the target; lower it if noise starts being traced.</td></tr>
+<tr><td>Smoothing Along Fringes (px)</td><td>Averages the image along each fringe, never across it, to suppress speckle. Higher gives straighter, less broken lines in noisy areas; too high can make lines drift across dense, curved fringes.</td></tr>
+<tr><td>Max Fringe Angle°</td><td>Steepest fringe tilt from horizontal that is traced. 0 keeps only horizontal fringes; 90 keeps every angle up to vertical. Steeper structures, such as vertical streaks at the target edge, are filtered out.</td></tr>
+<tr><td>Gap Bridging (px)</td><td>Largest break in a fringe that is joined automatically, only where both ends line up along the fringe and the bridge does not cross a dark fringe.</td></tr>
+<tr><td>Minimum Fringe Length (px)</td><td>Pieces shorter than this are deleted.</td></tr>
+<tr><td>Noise Rejection</td><td>Removes small fringes where the fringe pattern is weak or disordered (shadows, the dark band above the plume). The weaker the pattern around a piece, the longer it has to be to stay, so high settings also remove long pieces there. 0 keeps everything.</td></tr>
+</table>
+<p>Smoothing and Max Fringe Angle rerun the full analysis (a few seconds for a 2048 x 2048 shot); the other sliders update in about a second.</p>
+
+<h2 id="auto">How Auto-Optimize works</h2>
+<p>Auto-Optimize traces the shot many times with different settings and keeps the trace that would need the least hand editing.</p>
+<ol>
+  <li>It starts at Smoothing 9 px and Max Fringe Angle 60 (90 when most of the fringes are steeper than 60 degrees).</li>
+  <li>It tries every value of Sensitivity, Noise Rejection, Minimum Fringe Length and Gap Bridging over the whole useful range, one slider at a time, and keeps each improvement.</li>
+  <li>It steps Max Fringe Angle up (70, then 85) while the trace improves, or down to 55 when the first step up does not help (from a start at 90 it steps down: 85, 70 and so on), and then fine tunes the other sliders again.</li>
+  <li>It steps Smoothing up (12, 15 px) or down (6, 3 px) the same way and fine tunes again.</li>
+  <li>At 2x the search runs on the 1x grid, which is about four times faster, and the three best settings are compared again at 2x.</li>
+</ol>
+<p>Every trace gets a score for how much hand editing it saves. Each pixel of real fringe counts for it. Broken ends inside the fringe area and lines squeezed between two fringes (which is where fringes merge) count against it. Stray pieces count only a little, because they are quick to delete, and least near the edge of the fringe area. There is also a small preference for less smoothing, because heavy smoothing can make lines drift across dense fringes. Whether a piece is a real fringe is judged from how orderly the fringe pattern is around it, measured the same way for every setting. The weights of the score were tuned on hand-edited shots, so that the settings it picks need the least editing.</p>
+<p>While it runs, the status line counts down, the button reads Cancel Auto-Optimize, and the sliders are locked. At the end the sliders show the result, so you can fine tune from there. The result is the same whatever the sliders were before.</p>
+
+<h2 id="editor">Editor tab</h2>
+<p>The shot binary is drawn in red over the shot image. A reference binary (cyan) and a reference image can be loaded to compare with.</p>
+<h3>Files</h3>
+<ul>
+  <li><b>Open:</b> Shot Binary, Reference Binary, Shot Image, Reference Image, Gray Mask. A shot image is the binary's size at 1x or half of it at 2x.</li>
+  <li><b>Save:</b> Shot Binary (with its gray mask), Reference Binary, Gray Mask. Always PNG. A gray mask file uses the same values as a binary: 128 = masked, 255 = not masked (gray mask files from SpellBook 1, with 255 = masked, still open).</li>
+</ul>
+<h3>Editing</h3>
+<p>Picks which binary the tools change: the shot binary or the reference binary. Mask Pen always edits the gray mask of the shot.</p>
+<h3>Tools</h3>
+<table>
+<tr><th>Tool</th><th>Use</th></tr>
+<tr><td>Pen <kbd>P</kbd></td><td>Draw fringe pixels. Size 0.5 draws a 1 px line.</td></tr>
+<tr><td>Eraser <kbd>E</kbd></td><td>Remove fringe pixels.</td></tr>
+<tr><td>Line <kbd>L</kbd></td><td>Straight 1 px line: click and drag, or click the start and then the end. With Polyline on, every click adds a corner; <kbd>Enter</kbd> or Ctrl+click (Cmd+click on a Mac) finishes.</td></tr>
+<tr><td>Spline <kbd>S</kbd></td><td>Smooth 1 px curve through your clicks. Ctrl+click (Cmd+click) adds the last point and finishes; <kbd>Enter</kbd> also finishes; <kbd>Esc</kbd> cancels.</td></tr>
+<tr><td>Delete Fringe <kbd>D</kbd></td><td>Click exactly on a line to delete that whole connected piece. The piece under the cursor is highlighted in yellow first.</td></tr>
+<tr><td>Mask Pen <kbd>M</kbd></td><td>Mark out areas without fringes to isolate the proper region. Masking removes the fringes underneath. Hold Shift while painting to remove mask.</td></tr>
+<tr><td>Ruler <kbd>R</kbd></td><td>Measure a distance in image pixels. Lock keeps it horizontal or vertical.</td></tr>
+<tr><td>Connection Check <kbd>K</kbd></td><td>Drag a line across fringes: every fringe it touches turns orange. Fringes that stay black are not connected to them. The orange stays while you use other tools and follows your edits (cutting a merge turns the cut off part red again); <kbd>Esc</kbd> clears it.</td></tr>
+</table>
+<p>With <b>Snap to ends</b> on, Line and Spline clicks jump to the nearest fringe end (green circle), so a join is exactly connected.</p>
+<h3>Fix-ups</h3>
+<ul>
+  <li><b>Link Endpoints</b> adds a straight 1 px stroke between pairs of fringe ends closer than Max gap (image pixels) whose joining line is within Angle degrees of horizontal: 0 joins only horizontally, 90 joins at any angle up to vertical. Only ends that point at each other are joined, never across to the next fringe. Nothing else in the binary changes.</li>
+  <li><b>Merge Binaries</b> turns everything into the shot binary layer: the reference binary, at its nudged position, is copied into the shot binary. It asks first.</li>
+</ul>
+<h3>View</h3>
+<ul>
+  <li>Opacity and Brightness for the shot image, the reference image and both binaries.</li>
+  <li><b>Color Fringes</b> gives every connected fringe its own color, so breaks and merges stand out.</li>
+  <li><b>Mirror at x =</b> reflects the shot binary about that x position (image pixels, as the cursor readout shows it) and draws it in blue under the red lines.</li>
+  <li><b>Nudge:</b> the arrow keys move the reference image and reference binary together one pixel of the binary at a time (half an image pixel at 2x; hold a key to keep moving); Ctrl + right drag (Cmd + right drag on a Mac) moves them with the mouse. Use it to see where the shot and reference line up. The offset next to <b>Reset Nudge</b> is in image pixels; Reset Nudge puts them back. A saved reference binary is not moved.</li>
+</ul>
+<p><b>Undo and Redo</b> cover every change, including opening layers, merging, nudges and grid switches. A held arrow key is one undo step.</p>
+
+<h2 id="controls">Mouse and keyboard</h2>
+<table>
+<tr><th>Action</th><th>Windows and Linux</th><th>macOS</th></tr>
+<tr><td>Zoom</td><td>Mouse wheel</td><td>Mouse wheel or two finger scroll</td></tr>
+<tr><td>Pan</td><td>Right or middle drag (any button on the Detection tab)</td><td>Right or middle drag, or two finger click and drag</td></tr>
+<tr><td>Show the whole image</td><td colspan="2">Fit button, top right of the image</td></tr>
+<tr><td>Brush size (past the slider's 60, up to 500)</td><td>Ctrl + wheel</td><td>Cmd + wheel</td></tr>
+<tr><td>Undo / Redo</td><td>Ctrl+Z / Ctrl+Y or Ctrl+Shift+Z</td><td>Cmd+Z / Cmd+Shift+Z</td></tr>
+<tr><td>Finish a spline or polyline</td><td>Enter or Ctrl+click</td><td>Enter or Cmd+click</td></tr>
+<tr><td>Cancel a spline or polyline, or clear the Connection Check</td><td colspan="2">Esc</td></tr>
+<tr><td>Nudge the reference</td><td>Arrow keys or Ctrl + right drag</td><td>Arrow keys or Cmd + right drag</td></tr>
+</table>
+<p>The bottom bar is the one status line: it shows the file in the current tab, that tab's latest message, and the cursor position (image pixels) with the image value (camera counts) under it. <b>Help</b> at the top left opens this manual in your browser.</p>
+
+<h2 id="format">Binary format and folders</h2>
+<p>Binaries are PNG files: <b>0</b> = fringe, <b>255</b> = background, <b>128</b> = gray mask (areas without usable fringes, which phase extraction should skip). When reading, anything below 128 is fringe and exactly 128 is gray mask. Binaries saved as 0 and 1, at 16 bit, or as white fringes on black are recognized and read the same way (the status line says when one was inverted). Detected fringe lines are 1 px wide and separate fringes never touch, not even diagonally.</p>
+<div class="note">
+<p><code>InputImages/</code> is a place for the shots you want to trace (load dialogs start there). <code>EditedImages/</code> holds the binaries SpellBook writes (Send to Editor saves there, and Save dialogs start there; you can save anywhere else). <code>spellbook_settings.json</code> remembers your sliders, grid, tool sizes and folders; delete it to go back to the defaults. If something goes wrong, SpellBook shows a message and saves the details to <code>spellbook_errors.log</code>; send that file along when you report a problem.</p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,7 @@
+# SpellBook needs Python 3.10 or newer (Tkinter is included with the python.org installers).
+# Install with:  pip install -r requirements.txt
+numpy>=1.23
+opencv-python>=4.7
+scipy>=1.9
+scikit-image>=0.20
+Pillow>=10.0
